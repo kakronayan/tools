@@ -1,6 +1,8 @@
-# Decode Encode
+# tools
 
-Decode Encode is a local-first Vite + React + TypeScript app for everyday developer encoding, decoding, formatting, and hashing tasks.
+Browser tools suite for [github.kakronayan.dev/tools](https://github.kakronayan.dev/tools/).
+
+Local-first utilities for encoding, decoding, formatting, and hashing in the browser.
 
 ## Local-first behavior
 
@@ -42,7 +44,11 @@ npm run preview
 
 ## GitHub Pages deployment
 
-This project is configured for a repository GitHub Pages site at `/decode-encode/` via `base: '/decode-encode/'` in `vite.config.ts`. If you publish this as a user or organization root page instead, change the Vite `base` value to `/`.
+This project is configured for a repository GitHub Pages site at `/tools/` via `base: '/tools/'` in `vite.config.ts`.
+
+## Contributors
+
+- [kakronayan](https://github.com/kakronayan)
 
 Deployment is handled by the GitHub Actions workflow in `.github/workflows/deploy.yml`. On pushes to the default branch (`main`), the workflow installs dependencies, runs `npm run build`, uploads the generated `dist/` directory, and deploys it with the official GitHub Pages actions.
 

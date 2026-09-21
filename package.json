@@ -3,6 +3,11 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "author": "Yan Kakrona <https://github.com/kakronayan>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kakronayan/tools.git"
+  },
   "homepage": "https://kakronayan.github.io/tools/",
   "scripts": {
     "dev": "vite",
