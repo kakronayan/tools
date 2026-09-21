@@ -304,16 +304,17 @@
     const s = Math.floor((Date.now() - bootTime) / 1000);
     const uptime = `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s / 60) % 60))}:${pad(s % 60)}`;
 
-    document.getElementById('app').innerHTML = `
-      <aside class="sidebar ${state.collapsed ? 'collapsed' : ''}" id="sidebar">
+    document.getElementById("app").innerHTML = `
+      <aside class="sidebar ${state.collapsed ? "collapsed" : ""}" id="sidebar">
         <div class="top-actions">
-          <a class="back-link" href="https://github.kakronayan.dev/">← Workspace</a>
+          <a class="back-link" href="https://kakronayan.github.io/">← Workspace</a>
           <a class="back-link" href="https://github.com/kakronayan">Contributor</a>
           <button class="theme-btn" id="themeBtn" type="button">Theme</button>
         </div>
         <div class="console-bar">
-          <span><span class="blink"></span><span class="live">SYSTEM NOMINAL</span></span>
-          <span>${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}</span>
+          <span class="seg"><span class="blink"></span><span class="dot-live">SYSTEM NOMINAL</span></span>
+          <span class="seg">${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}</span>
+          <span class="seg">UPTIME ${uptime}</span>
         </div>
         <div class="sidebar-head">
           <div class="sidebar-copy">
@@ -321,12 +322,12 @@
             <h1>Browser Tools</h1>
             <p class="desc">Fast browser tools for transforming, inspecting, and validating text without leaving the page.</p>
           </div>
-          <button class="collapse-btn" id="collapseBtn" type="button">${state.collapsed ? '>' : '<'}</button>
+          <button class="collapse-btn" id="collapseBtn" type="button">${state.collapsed ? ">" : "<"}</button>
         </div>
         <nav class="tool-nav" id="toolNav">${renderNav()}</nav>
       </aside>
       <main class="main">
-        <div class="status-bar"><strong>${tool.name}</strong> runs locally after the page loads. Uptime ${uptime}.</div>
+        <div class="status-bar"><strong>${tool.name}</strong> runs locally after the page loads — no data leaves your browser.</div>
         <section class="tool-panel">
           <div class="tool-panel-head">
             <span class="badge">Local input</span>
@@ -344,94 +345,99 @@
   }
 
   function bindEvents(latestOutput) {
-    document.getElementById('themeBtn').addEventListener('click', toggleTheme);
-    document.getElementById('collapseBtn').addEventListener('click', () => {
+    document.getElementById("themeBtn").addEventListener("click", toggleTheme);
+    document.getElementById("collapseBtn").addEventListener("click", () => {
       state.collapsed = !state.collapsed;
       render();
     });
 
-    document.querySelectorAll('[data-tool]').forEach((btn) => {
-      btn.addEventListener('click', () => {
+    document.querySelectorAll("[data-tool]").forEach((btn) => {
+      btn.addEventListener("click", () => {
         state.tool = btn.dataset.tool;
-        history.pushState({ tool: state.tool }, '', `#${state.tool}`);
+        history.pushState({ tool: state.tool }, "", `#${state.tool}`);
         render();
       });
     });
 
-    document.querySelectorAll('[data-mode]').forEach((btn) => {
-      btn.addEventListener('click', () => {
+    document.querySelectorAll("[data-mode]").forEach((btn) => {
+      btn.addEventListener("click", () => {
         const group = btn.dataset.group;
         const mode = btn.dataset.mode;
-        if (group === 'base64') state.base64.mode = mode;
-        if (group === 'text') state.text.mode = mode;
-        if (group === 'encoding') state.encoding.mode = mode;
-        if (group === 'json') state.json.mode = mode;
-        if (group === 'crypto') state.crypto.algorithm = mode;
-        if (group === 'time') state.time.mode = mode;
+        if (group === "base64") state.base64.mode = mode;
+        if (group === "text") state.text.mode = mode;
+        if (group === "encoding") state.encoding.mode = mode;
+        if (group === "json") state.json.mode = mode;
+        if (group === "crypto") state.crypto.algorithm = mode;
+        if (group === "time") state.time.mode = mode;
         render();
       });
     });
 
-    const input = document.getElementById('toolInput');
+    const input = document.getElementById("toolInput");
     if (input) {
-      input.addEventListener('input', (e) => {
+      input.addEventListener("input", (e) => {
         const value = e.target.value;
-        if (state.tool === 'base64') state.base64.input = value;
-        if (state.tool === 'jwt') state.jwt.input = value;
-        if (state.tool === 'text') state.text.input = value;
-        if (state.tool === 'encoding') state.encoding.input = value;
-        if (state.tool === 'json') state.json.input = value;
-        if (state.tool === 'crypto') state.crypto.input = value;
-        if (state.tool === 'time') state.time.input = value;
-        if (state.tool === 'regex') state.regex.input = value;
+        if (state.tool === "base64") state.base64.input = value;
+        if (state.tool === "jwt") state.jwt.input = value;
+        if (state.tool === "text") state.text.input = value;
+        if (state.tool === "encoding") state.encoding.input = value;
+        if (state.tool === "json") state.json.input = value;
+        if (state.tool === "crypto") state.crypto.input = value;
+        if (state.tool === "time") state.time.input = value;
+        if (state.tool === "regex") state.regex.input = value;
         updateOutput();
       });
     }
 
-    const jsonPath = document.getElementById('jsonPath');
+    const jsonPath = document.getElementById("jsonPath");
     if (jsonPath) {
-      jsonPath.addEventListener('input', (e) => {
+      jsonPath.addEventListener("input", (e) => {
         state.json.path = e.target.value;
         updateOutput();
       });
     }
 
-    const colorPrimary = document.getElementById('colorPrimary');
-    const colorSecondary = document.getElementById('colorSecondary');
+    const colorPrimary = document.getElementById("colorPrimary");
+    const colorSecondary = document.getElementById("colorSecondary");
     if (colorPrimary) {
-      colorPrimary.addEventListener('input', (e) => {
+      colorPrimary.addEventListener("input", (e) => {
         state.color.primary = e.target.value;
         updateOutput();
       });
     }
     if (colorSecondary) {
-      colorSecondary.addEventListener('input', (e) => {
+      colorSecondary.addEventListener("input", (e) => {
         state.color.secondary = e.target.value;
         updateOutput();
       });
     }
 
-    const regexPattern = document.getElementById('regexPattern');
-    const regexFlags = document.getElementById('regexFlags');
+    const regexPattern = document.getElementById("regexPattern");
+    const regexFlags = document.getElementById("regexFlags");
     if (regexPattern) {
-      regexPattern.addEventListener('input', (e) => {
+      regexPattern.addEventListener("input", (e) => {
         state.regex.pattern = e.target.value;
         updateOutput();
       });
     }
     if (regexFlags) {
-      regexFlags.addEventListener('input', (e) => {
+      regexFlags.addEventListener("input", (e) => {
         state.regex.flags = e.target.value;
         updateOutput();
       });
     }
 
-    const hashBtn = document.getElementById('hashBtn');
+    const hashBtn = document.getElementById("hashBtn");
     if (hashBtn) {
-      hashBtn.addEventListener('click', async () => {
+      hashBtn.addEventListener("click", async () => {
         try {
-          const digest = await crypto.subtle.digest(state.crypto.algorithm, U.textEncoder.encode(state.crypto.input));
-          state.crypto.output = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+          const digest = await crypto.subtle.digest(
+            state.crypto.algorithm,
+            U.textEncoder.encode(state.crypto.input),
+          );
+          state.crypto.output = Array.from(new Uint8Array(digest), (byte) =>
+            byte.toString(16).padStart(2, "0"),
+          ).join("");
           render();
         } catch (error) {
           state.crypto.output = `Error: ${error.message}`;
@@ -440,28 +446,38 @@
       });
     }
 
-    const uuidBtn = document.getElementById('uuidBtn');
+    const uuidBtn = document.getElementById("uuidBtn");
     if (uuidBtn) {
-      uuidBtn.addEventListener('click', () => {
+      uuidBtn.addEventListener("click", () => {
         state.crypto.output = crypto.randomUUID();
         render();
       });
     }
 
-    document.querySelectorAll('[data-copy]').forEach((btn) => {
-      btn.addEventListener('click', () => copyText(btn.dataset.copy || document.getElementById('toolOutput')?.textContent || ''));
+    document.querySelectorAll("[data-copy]").forEach((btn) => {
+      btn.addEventListener("click", () =>
+        copyText(
+          btn.dataset.copy ||
+            document.getElementById("toolOutput")?.textContent ||
+            "",
+        ),
+      );
     });
 
     setInterval(() => {
-      const bar = document.querySelector('.status-bar');
+      const bar = document.querySelector(".status-bar");
       if (!bar) return;
       const tool = TOOLS.find((t) => t.id === state.tool);
       const s = Math.floor((Date.now() - bootTime) / 1000);
-      bar.innerHTML = `<strong>${tool.name}</strong> runs locally after the page loads. Uptime ${pad(Math.floor(s / 3600))}:${pad(Math.floor((s / 60) % 60))}:${pad(s % 60)}.`;
-      const clock = document.querySelector('.console-bar span:last-child');
+      bar.innerHTML = `<strong>${tool.name}</strong> runs locally after the page loads — no data leaves your browser.`;
+      const clock = document.querySelector(".console-bar .seg:nth-child(2)");
+      const uptimeEl = document.querySelector(".console-bar .seg:nth-child(3)");
       if (clock) {
         const now = new Date();
         clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      }
+      if (uptimeEl) {
+        uptimeEl.textContent = `UPTIME ${pad(Math.floor(s / 3600))}:${pad(Math.floor((s / 60) % 60))}:${pad(s % 60)}`;
       }
     }, 1000);
   }

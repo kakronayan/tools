@@ -1,6 +1,6 @@
 # tools
 
-Browser tools suite for [github.kakronayan.dev/tools](https://github.kakronayan.dev/tools/).
+Browser tools suite for [kakronayan.github.io/tools](https://kakronayan.github.io/tools/).
 
 Local-first utilities for encoding, decoding, formatting, and hashing in the browser.
 
