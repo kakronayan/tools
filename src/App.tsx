@@ -82,30 +82,47 @@ function copyText(value: string) {
   void navigator.clipboard?.writeText(value);
 }
 
+function pad(n: number) {
+  return String(n).padStart(2, '0');
+}
+
 function ToolPanel({ title, description, children }: { title: string; description: string; children: ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-lg border border-stone-300 bg-white shadow-[0_20px_60px_rgba(28,25,23,0.08)]">
-      <div className="border-b border-stone-200 bg-stone-50 px-5 py-5 sm:px-7 lg:px-8">
+    <section className="overflow-hidden rounded-md border border-[var(--line)] bg-[var(--panel)] shadow-[var(--shadow,0_1px_2px_rgba(20,25,30,.06))]">
+      <div className="border-b border-[var(--line)] bg-[var(--panel-raised)] px-5 py-5 sm:px-7 lg:px-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-teal-700">Browser-only tool</p>
-            <h2 className="mt-1 text-2xl font-black text-stone-950 sm:text-3xl">{title}</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-stone-600 sm:text-base">{description}</p>
+            <p className="font-mono text-xs font-semibold text-[var(--accent)]">Browser-only tool</p>
+            <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[var(--text)] sm:text-3xl">{title}</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-dim)] sm:text-base">{description}</p>
           </div>
-          <p className="shrink-0 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800">Local input</p>
+          <p className="shrink-0 rounded-md border border-[var(--accent-soft)] bg-[var(--accent-soft)] px-3 py-2 font-mono text-xs font-semibold text-[var(--accent)]">
+            Local input
+          </p>
         </div>
       </div>
-      <div className="p-5 sm:p-7 lg:p-8">
-        {children}
-      </div>
+      <div className="p-5 sm:p-7 lg:p-8">{children}</div>
     </section>
   );
 }
 
-function TextArea({ value, onChange, placeholder, minHeight = 'min-h-[22rem]' }: { value: string; onChange?: (value: string) => void; placeholder?: string; minHeight?: string }) {
+const fieldClass =
+  'w-full rounded-md border border-[var(--line)] bg-[var(--bg)] p-3 font-mono text-sm text-[var(--text)] outline-none transition placeholder:text-[var(--text-faint)] focus:border-[var(--accent)]';
+
+function TextArea({
+  value,
+  onChange,
+  placeholder,
+  minHeight = 'min-h-[22rem]',
+}: {
+  value: string;
+  onChange?: (value: string) => void;
+  placeholder?: string;
+  minHeight?: string;
+}) {
   return (
     <textarea
-      className={`${minHeight} w-full resize-y rounded-md border border-stone-300 bg-stone-50 p-4 font-mono text-sm leading-6 text-stone-950 shadow-inner outline-none transition placeholder:text-stone-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100`}
+      className={`${minHeight} ${fieldClass} resize-y p-4 leading-6`}
       placeholder={placeholder}
       readOnly={!onChange}
       value={value}
@@ -115,15 +132,19 @@ function TextArea({ value, onChange, placeholder, minHeight = 'min-h-[22rem]' }:
 }
 
 function TextInput({ value, onChange, placeholder }: { value: string; onChange: (value: string) => void; placeholder?: string }) {
-  return <input className="w-full rounded-md border border-stone-300 bg-stone-50 p-3 text-sm text-stone-950 outline-none transition placeholder:text-stone-400 focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-100" placeholder={placeholder} value={value} onChange={(event) => onChange(event.target.value)} />;
+  return <input className={fieldClass} placeholder={placeholder} value={value} onChange={(event) => onChange(event.target.value)} />;
 }
 
 function OutputBlock({ value }: { value: string }) {
   return (
     <div className="min-w-0">
       <div className="mb-3 flex h-10 items-center justify-between gap-3">
-        <label className="text-sm font-bold text-stone-800">Output</label>
-        <button className="h-10 rounded-md bg-stone-950 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100" onClick={() => copyText(value)} type="button">
+        <label className="font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-dim)]">Output</label>
+        <button
+          className="h-10 rounded-md bg-[var(--accent)] px-4 font-mono text-xs font-semibold text-[#04201f] transition hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)]"
+          onClick={() => copyText(value)}
+          type="button"
+        >
           Copy
         </button>
       </div>
@@ -145,7 +166,7 @@ function Base64Tool() {
 
   return (
     <ToolPanel title="Base64 encode/decode" description="Convert text to Base64 and back using browser-native encoding APIs.">
-      <ModeButtons modes={[[ 'encode', 'Encode' ], [ 'decode', 'Decode' ]]} selected={mode} onSelect={(value) => setMode(value as 'encode' | 'decode')} />
+      <ModeButtons modes={[['encode', 'Encode'], ['decode', 'Decode']]} selected={mode} onSelect={(value) => setMode(value as 'encode' | 'decode')} />
       <ToolGrid input={input} output={output} onInput={setInput} placeholder="Enter text or Base64..." />
     </ToolPanel>
   );
@@ -181,7 +202,21 @@ function TextTool() {
   }, [input, mode]);
   return (
     <ToolPanel title="Text utilities" description="Convert text casing, generate URL-friendly slugs, and count characters, words, bytes, and lines.">
-      <ModeButtons modes={[[ 'slug', 'Slug' ], [ 'camel', 'camelCase' ], [ 'pascal', 'PascalCase' ], [ 'snake', 'snake_case' ], [ 'kebab', 'kebab-case' ], [ 'upper', 'UPPER' ], [ 'lower', 'lower' ], [ 'title', 'Title Case' ], [ 'count', 'Count' ]]} selected={mode} onSelect={(value) => setMode(value as typeof mode)} />
+      <ModeButtons
+        modes={[
+          ['slug', 'Slug'],
+          ['camel', 'camelCase'],
+          ['pascal', 'PascalCase'],
+          ['snake', 'snake_case'],
+          ['kebab', 'kebab-case'],
+          ['upper', 'UPPER'],
+          ['lower', 'lower'],
+          ['title', 'Title Case'],
+          ['count', 'Count'],
+        ]}
+        selected={mode}
+        onSelect={(value) => setMode(value as typeof mode)}
+      />
       <ToolGrid input={input} output={output} onInput={setInput} placeholder="Enter text..." />
     </ToolPanel>
   );
@@ -204,7 +239,18 @@ function EncodingTool() {
   }, [input, mode]);
   return (
     <ToolPanel title="Encoding utilities" description="Encode and decode URL components, HTML entities, and Unicode escape sequences.">
-      <ModeButtons modes={[[ 'urlEncode', 'URL encode' ], [ 'urlDecode', 'URL decode' ], [ 'htmlEscape', 'HTML escape' ], [ 'htmlUnescape', 'HTML unescape' ], [ 'unicodeEscape', 'Unicode escape' ], [ 'unicodeUnescape', 'Unicode unescape' ]]} selected={mode} onSelect={(value) => setMode(value as typeof mode)} />
+      <ModeButtons
+        modes={[
+          ['urlEncode', 'URL encode'],
+          ['urlDecode', 'URL decode'],
+          ['htmlEscape', 'HTML escape'],
+          ['htmlUnescape', 'HTML unescape'],
+          ['unicodeEscape', 'Unicode escape'],
+          ['unicodeUnescape', 'Unicode unescape'],
+        ]}
+        selected={mode}
+        onSelect={(value) => setMode(value as typeof mode)}
+      />
       <ToolGrid input={input} output={output} onInput={setInput} placeholder="Enter encoded or plain text..." />
     </ToolPanel>
   );
@@ -226,8 +272,13 @@ function JsonTool() {
 
   return (
     <ToolPanel title="JSON formatter/minifier and path lookup" description="Parse JSON locally, then pretty-print, compact, or query simple paths like $.user.name or $.items[0].id.">
-      <ModeButtons modes={[[ 'format', 'Format' ], [ 'minify', 'Minify' ], [ 'path', 'Path lookup' ]]} selected={mode} onSelect={(value) => setMode(value as typeof mode)} />
-      {mode === 'path' && <div className="mb-5"><label className="mb-2 block text-sm font-bold text-stone-800">JSON path</label><TextInput value={path} onChange={setPath} placeholder="$.items[0].name" /></div>}
+      <ModeButtons modes={[['format', 'Format'], ['minify', 'Minify'], ['path', 'Path lookup']]} selected={mode} onSelect={(value) => setMode(value as typeof mode)} />
+      {mode === 'path' && (
+        <div className="mb-5">
+          <label className="mb-2 block font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-dim)]">JSON path</label>
+          <TextInput value={path} onChange={setPath} placeholder="$.items[0].name" />
+        </div>
+      )}
       <ToolGrid input={input} output={output} onInput={setInput} placeholder="Paste JSON..." />
     </ToolPanel>
   );
@@ -245,8 +296,24 @@ function CryptoTool() {
 
   return (
     <ToolPanel title="Crypto utilities" description="Generate SHA digests with window.crypto.subtle and UUIDs with crypto.randomUUID().">
-      <ModeButtons modes={[[ 'SHA-1', 'SHA-1' ], [ 'SHA-256', 'SHA-256' ], [ 'SHA-384', 'SHA-384' ], [ 'SHA-512', 'SHA-512' ]]} selected={algorithm} onSelect={(value) => setAlgorithm(value as typeof algorithm)} />
-      <div className="mb-5 flex flex-wrap gap-3"><button className="rounded-md bg-teal-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-100" onClick={() => void generateHash()} type="button">Generate hash</button><button className="rounded-md bg-stone-950 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-stone-800 focus:outline-none focus:ring-4 focus:ring-stone-200" onClick={() => setOutput(crypto.randomUUID())} type="button">Generate UUID</button></div>
+      <ModeButtons
+        modes={[
+          ['SHA-1', 'SHA-1'],
+          ['SHA-256', 'SHA-256'],
+          ['SHA-384', 'SHA-384'],
+          ['SHA-512', 'SHA-512'],
+        ]}
+        selected={algorithm}
+        onSelect={(value) => setAlgorithm(value as typeof algorithm)}
+      />
+      <div className="mb-5 flex flex-wrap gap-3">
+        <button className="rounded-md bg-[var(--accent)] px-5 py-3 font-mono text-xs font-semibold text-[#04201f] transition hover:brightness-105" onClick={() => void generateHash()} type="button">
+          Generate hash
+        </button>
+        <button className="rounded-md border border-[var(--line)] bg-[var(--panel-raised)] px-5 py-3 font-mono text-xs font-semibold text-[var(--text)] transition hover:border-[var(--text-faint)]" onClick={() => setOutput(crypto.randomUUID())} type="button">
+          Generate UUID
+        </button>
+      </div>
       <ToolGrid input={input} output={output} onInput={setInput} placeholder="Enter text to hash..." />
     </ToolPanel>
   );
@@ -258,7 +325,7 @@ function TimeTool() {
   const output = useMemo(() => formatDateSummary(input, mode), [input, mode]);
   return (
     <ToolPanel title="Time utilities" description="Convert Unix timestamps in seconds or milliseconds, and format ISO/local dates.">
-      <ModeButtons modes={[[ 'unix', 'Unix timestamp' ], [ 'iso', 'ISO/date text' ]]} selected={mode} onSelect={(value) => setMode(value as typeof mode)} />
+      <ModeButtons modes={[['unix', 'Unix timestamp'], ['iso', 'ISO/date text']]} selected={mode} onSelect={(value) => setMode(value as typeof mode)} />
       <ToolGrid input={input} output={output} onInput={setInput} placeholder="Enter timestamp or date..." />
     </ToolPanel>
   );
@@ -276,7 +343,16 @@ function ColorTool() {
   }, [primary, secondary]);
   return (
     <ToolPanel title="Color utilities" description="Convert between HEX, RGB, and HSL, then check WCAG contrast between two colors.">
-      <div className="mb-5 grid gap-4 sm:grid-cols-2"><div><label className="mb-2 block text-sm font-bold text-stone-800">Color to convert</label><TextInput value={primary} onChange={setPrimary} /></div><div><label className="mb-2 block text-sm font-bold text-stone-800">Contrast color</label><TextInput value={secondary} onChange={setSecondary} /></div></div>
+      <div className="mb-5 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="mb-2 block font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-dim)]">Color to convert</label>
+          <TextInput value={primary} onChange={setPrimary} />
+        </div>
+        <div>
+          <label className="mb-2 block font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-dim)]">Contrast color</label>
+          <TextInput value={secondary} onChange={setSecondary} />
+        </div>
+      </div>
       <OutputBlock value={output} />
     </ToolPanel>
   );
@@ -299,29 +375,57 @@ function RegexTool() {
   }, [pattern, flags, input]);
   return (
     <ToolPanel title="JavaScript regex tester" description="Run JavaScript RegExp matches locally with configurable pattern and flags.">
-      <div className="mb-5 grid gap-4 sm:grid-cols-[1fr_8rem]"><div><label className="mb-2 block text-sm font-bold text-stone-800">Pattern</label><TextInput value={pattern} onChange={setPattern} /></div><div><label className="mb-2 block text-sm font-bold text-stone-800">Flags</label><TextInput value={flags} onChange={setFlags} /></div></div>
+      <div className="mb-5 grid gap-4 sm:grid-cols-[1fr_8rem]">
+        <div>
+          <label className="mb-2 block font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-dim)]">Pattern</label>
+          <TextInput value={pattern} onChange={setPattern} />
+        </div>
+        <div>
+          <label className="mb-2 block font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-dim)]">Flags</label>
+          <TextInput value={flags} onChange={setFlags} />
+        </div>
+      </div>
       <ToolGrid input={input} output={output} onInput={setInput} placeholder="Enter text to test..." />
     </ToolPanel>
   );
 }
 
 function ModeButtons({ modes, selected, onSelect }: { modes: [string, string][]; selected: string; onSelect: (value: string) => void }) {
-  return <div className="mb-5 flex flex-wrap gap-2">{modes.map(([value, label]) => <button className={`rounded-md border px-4 py-2.5 text-sm font-bold transition focus:outline-none focus:ring-4 focus:ring-teal-100 ${selected === value ? 'border-teal-700 bg-teal-700 text-white shadow-sm' : 'border-stone-300 bg-stone-100 text-stone-800 hover:border-stone-400 hover:bg-white'}`} key={value} onClick={() => onSelect(value)} type="button">{label}</button>)}</div>;
+  return (
+    <div className="mb-5 flex flex-wrap gap-2">
+      {modes.map(([value, label]) => (
+        <button
+          className={`rounded-md border px-4 py-2.5 font-mono text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)] ${
+            selected === value
+              ? 'border-[var(--accent)] bg-[var(--accent)] text-[#04201f]'
+              : 'border-[var(--line)] bg-[var(--panel-raised)] text-[var(--text-dim)] hover:border-[var(--text-faint)]'
+          }`}
+          key={value}
+          onClick={() => onSelect(value)}
+          type="button"
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 function ToolGrid({ input, output, onInput, placeholder }: { input: string; output: string; onInput: (value: string) => void; placeholder: string }) {
-  return <div className="grid gap-6 xl:grid-cols-2"><div className="min-w-0"><div className="mb-3 flex h-10 items-center"><label className="block text-sm font-bold text-stone-800">Input</label></div><TextArea value={input} onChange={onInput} placeholder={placeholder} /></div><OutputBlock value={output} /></div>;
+  return (
+    <div className="grid gap-6 xl:grid-cols-2">
+      <div className="min-w-0">
+        <div className="mb-3 flex h-10 items-center">
+          <label className="block font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-dim)]">Input</label>
+        </div>
+        <TextArea value={input} onChange={onInput} placeholder={placeholder} />
+      </div>
+      <OutputBlock value={output} />
+    </div>
+  );
 }
 
-function ToolNav({
-  activeTool,
-  collapsed,
-  onSelect,
-}: {
-  activeTool: ToolId;
-  collapsed: boolean;
-  onSelect: (tool: ToolId) => void;
-}) {
+function ToolNav({ activeTool, collapsed, onSelect }: { activeTool: ToolId; collapsed: boolean; onSelect: (tool: ToolId) => void }) {
   return (
     <nav className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0" aria-label="Tool navigation">
       {tools.map((tool) => {
@@ -329,19 +433,25 @@ function ToolNav({
         return (
           <button
             aria-label={collapsed ? tool.name : undefined}
-            className={`group min-w-max rounded-md border text-left transition focus:outline-none focus:ring-4 focus:ring-teal-100 lg:min-w-0 ${
+            className={`group min-w-max rounded-md border text-left transition focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)] lg:min-w-0 ${
               collapsed ? 'lg:grid lg:h-12 lg:w-12 lg:min-w-12 lg:place-items-center lg:p-0' : 'px-4 py-3'
-            } ${isActive ? 'border-stone-950 bg-stone-950 text-white shadow-lg shadow-stone-950/10' : 'border-stone-300 bg-white text-stone-800 hover:border-teal-600 hover:bg-teal-50'}`}
+            } ${isActive ? 'border-[var(--text)] bg-[var(--text)] text-[var(--bg)] shadow-sm' : 'border-[var(--line)] bg-[var(--panel)] text-[var(--text-dim)] hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]'}`}
             key={tool.id}
             onClick={() => onSelect(tool.id)}
             title={collapsed ? tool.name : undefined}
             type="button"
           >
             <span className={`flex items-center ${collapsed ? 'lg:justify-center' : 'gap-3'}`}>
-              <span className={`grid shrink-0 place-items-center rounded text-xs font-black ${collapsed ? 'h-12 w-12 lg:h-auto lg:w-auto lg:border-0 lg:bg-transparent' : 'h-9 w-11 border'} ${isActive ? 'border-white/20 bg-white/10 text-white' : 'border-stone-300 bg-stone-100 text-stone-800 group-hover:border-teal-200 group-hover:bg-white'}`}>{tool.shortcut}</span>
-              {!collapsed && <span className="font-black">{tool.name}</span>}
+              <span
+                className={`grid shrink-0 place-items-center rounded font-mono text-[10px] font-bold ${collapsed ? 'h-12 w-12 lg:h-auto lg:w-auto lg:border-0 lg:bg-transparent' : 'h-9 w-11 border'} ${
+                  isActive ? 'border-white/20 bg-white/10 text-inherit' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-dim)] group-hover:border-[var(--accent)]'
+                }`}
+              >
+                {tool.shortcut}
+              </span>
+              {!collapsed && <span className="font-semibold">{tool.name}</span>}
             </span>
-            {!collapsed && <span className={`mt-2 block max-w-56 text-sm leading-5 ${isActive ? 'text-stone-300' : 'text-stone-600'}`}>{tool.description}</span>}
+            {!collapsed && <span className={`mt-2 block max-w-56 text-xs leading-5 ${isActive ? 'opacity-70' : 'text-[var(--text-faint)]'}`}>{tool.description}</span>}
           </button>
         );
       })}
@@ -352,6 +462,9 @@ function ToolNav({
 function App() {
   const [activeTool, setActiveTool] = useState<ToolId>(() => getToolFromLocation());
   const [isNavCollapsed, setIsNavCollapsed] = useState(false);
+  const [clock, setClock] = useState('--:--:--');
+  const bootTime = useState(() => Date.now())[0];
+  const [uptime, setUptime] = useState('00:00:00');
   const selectedTool = tools.find((tool) => tool.id === activeTool) ?? tools[0];
 
   useEffect(() => {
@@ -369,6 +482,18 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      setClock(`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`);
+      const s = Math.floor((Date.now() - bootTime) / 1000);
+      setUptime(`${pad(Math.floor(s / 3600))}:${pad(Math.floor((s / 60) % 60))}:${pad(s % 60)}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [bootTime]);
+
   function handleToolSelect(toolId: ToolId) {
     if (toolId === activeTool) return;
     window.history.pushState({ toolId }, '', buildToolUrl(toolId));
@@ -376,19 +501,28 @@ function App() {
   }
 
   return (
-    <main className="min-h-screen bg-stone-100 text-stone-950">
+    <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <div className="mx-auto flex min-h-screen max-w-[96rem] flex-col gap-4 px-3 py-3 sm:px-5 sm:py-5 lg:flex-row lg:gap-5">
         <aside className={`${isNavCollapsed ? 'lg:w-[5rem]' : 'lg:w-[21rem]'} lg:shrink-0`}>
-          <div className={`sticky top-5 rounded-lg border border-stone-300 bg-stone-50 p-4 shadow-[0_18px_45px_rgba(28,25,23,0.08)] ${isNavCollapsed ? 'lg:p-3' : 'lg:p-5'}`}>
+          <div className={`sticky top-5 rounded-md border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[var(--shadow,0_1px_2px_rgba(20,25,30,.06))] ${isNavCollapsed ? 'lg:p-3' : 'lg:p-5'}`}>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--line)] pb-3 font-mono text-[10px] text-[var(--text-faint)]">
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]" />
+                <span className="text-[var(--accent)]">SYSTEM NOMINAL</span>
+              </div>
+              <span>{clock}</span>
+            </div>
             <div className="flex items-start justify-between gap-3">
               <div className={isNavCollapsed ? 'lg:sr-only' : ''}>
-                <p className="text-sm font-black text-teal-700">Decode Encode</p>
-                <h1 className="mt-2 text-2xl font-black text-stone-950 sm:text-3xl">Local utilities</h1>
-                <p className="mt-3 max-w-xl text-sm leading-6 text-stone-600 lg:max-w-none">Fast browser tools for transforming, inspecting, and validating text without leaving the page.</p>
+                <p className="font-mono text-xs font-semibold text-[var(--accent)]">Local Utilities</p>
+                <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[var(--text)] sm:text-3xl">Browser Tools</h1>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--text-dim)] lg:max-w-none">
+                  Fast browser tools for transforming, inspecting, and validating text without leaving the page.
+                </p>
               </div>
               <button
                 aria-label={isNavCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                className="hidden h-10 w-10 shrink-0 place-items-center rounded-md border border-stone-300 bg-white text-lg font-black text-stone-800 shadow-sm transition hover:border-teal-600 hover:text-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100 lg:grid"
+                className="hidden h-10 w-10 shrink-0 place-items-center rounded-md border border-[var(--line)] bg-[var(--panel-raised)] font-mono text-sm font-bold text-[var(--text-dim)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)] lg:grid"
                 onClick={() => setIsNavCollapsed((value) => !value)}
                 title={isNavCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 type="button"
@@ -399,11 +533,18 @@ function App() {
             <div className={isNavCollapsed ? 'mt-4 lg:flex lg:justify-center' : 'mt-5'}>
               <ToolNav activeTool={activeTool} collapsed={isNavCollapsed} onSelect={handleToolSelect} />
             </div>
+            {!isNavCollapsed && (
+              <a className="mt-5 block font-mono text-xs text-[var(--text-faint)] hover:text-[var(--accent)]" href="https://github.kakronayan.dev">
+                ← Back to workspace
+              </a>
+            )}
           </div>
         </aside>
         <div className="min-w-0 flex-1">
-          <div className="mb-4 border-l-4 border-teal-700 bg-white px-4 py-3 text-stone-800 shadow-sm sm:px-5">
-            <p className="text-sm leading-6"><span className="font-black text-stone-950">{selectedTool.name}</span> runs locally after the app loads. Use the tabs or sidebar to switch tools without losing browser-only processing.</p>
+          <div className="mb-4 border-l-4 border-[var(--accent)] bg-[var(--panel)] px-4 py-3 text-sm text-[var(--text-dim)] shadow-sm sm:px-5">
+            <p>
+              <span className="font-semibold text-[var(--text)]">{selectedTool.name}</span> runs locally after the app loads. Uptime {uptime}.
+            </p>
           </div>
           {selectedTool.id === 'base64' && <Base64Tool />}
           {selectedTool.id === 'jwt' && <JwtTool />}
